@@ -1,32 +1,29 @@
-import { useParams } from "react-router";
-import { useState, useEffect } from "react";
-import { reviewsAPI } from "../../Services/moviesAPI";
-import styles from "./Reviews.module.css";
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router';
+import { FetchMoviesReviews } from '../Api/Api';
 
-export default function Cast() {
-  const { moviesId } = useParams();
-  const [reviews, setReviews] = useState(null);
+export default function Reviews() {
+  const { movieId } = useParams();
+  const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
-    reviewsAPI(moviesId)
-      .then(setReviews)
-      .catch((e) => console.log(e));
-  }, [moviesId]);
-  const { reviewsSt__txt, reviewsSt__title, reviewsSt__item, reviewsSt } =
-    styles;
-  return (
-    <ul className={reviewsSt}>
-      {reviews && reviews.total_pages === 0 ? (
-        <p>Sorry, there are no reviews for this movie.</p>
-      ) : (
-        reviews &&
-        reviews.results.map((review) => (
-          <li key={review.id} className={reviewsSt__item}>
-            <h3 className={reviewsSt__title}>Author name: {review.author}</h3>
-            <p className={reviewsSt__txt}>{review.content}</p>
+    FetchMoviesReviews(movieId).then(data => {
+      setReviews(data.results);
+    });
+  }, [movieId]);
+
+  return reviews.length !== 0 ? (
+    <ul>
+      {reviews.map(i => {
+        return (
+          <li key={i.id}>
+            <h2>Author: {i.author}</h2>
+            <p>{i.content}</p>
           </li>
-        ))
-      )}
+        );
+      })}
     </ul>
+  ) : (
+    <p>We don't have any reviews for this movie.</p>
   );
 }
